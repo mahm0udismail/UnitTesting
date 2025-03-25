@@ -108,3 +108,75 @@ def test_example(setup_resource):
 | Compatibility | ✅ Works with old pytest versions | ✅ Recommended for modern pytest |
 
 📌 **Best Practice:** Use `yield` for simple cases and `request.addfinalizer` if multiple cleanup steps are needed. 🚀
+
+### **8. Running multiple assert statements safely**  
+Use `autouse=True` in pytest fixtures to execute shared setup steps automatically before each test in the same class without explicitly calling the fixture. This helps avoid redundant setup calls and ensures a clean test environment.  
+
+#### Example:  
+```python
+import pytest
+
+@pytest.fixture(scope="class", autouse=True)
+def setup():
+    print("\n🔹 Setting up before each test")
+
+class TestExample:
+    def test_one(self):
+        print("✅ Running test_one")
+
+    def test_two(self):
+        print("✅ Running test_two")
+```
+📌 **Output:** The setup runs before each test in `TestExample`, without needing to reference it explicitly.
+
+
+### **9. Parametrizing Fixtures in Pytest**  
+Parametrizing fixtures allows running the same test multiple times with different data by using **`@pytest.fixture(params=[...])`**. It helps reduce redundancy and improves test coverage. Example:  
+
+```python
+@pytest.fixture(params=[("Alice", 25), ("Bob", 30), ("Charlie", 35)])
+def user_data(request):
+    return {"name": request.param[0], "age": request.param[1]}
+
+def test_user_age(user_data):
+    assert user_data["age"] > 20
+```
+
+### **10. Using Marks with Parametrized Fixtures**  
+
+You can use `pytest.mark` with parametrized fixtures to skip specific tests or expect failures based on certain conditions.  
+This helps in better organizing tests and managing different scenarios efficiently.  
+
+#### ✅ **Example:**  
+```python
+import pytest
+
+@pytest.fixture(params=[("Lisa", True), ("Mike", False), ("Meredith", True)])
+def customer_data(request):
+    return request.param
+
+@pytest.mark.parametrize("name, is_active", [("Alice", True), ("Bob", False)])
+def test_customer_status(customer_data, name, is_active):
+    customer_name, active_status = customer_data
+    assert active_status == is_active
+```
+This test runs multiple times with different customer data while using parametrized markers for better flexibility. 🚀
+
+### **11. Skipping and Expected Failures in Tests**  
+
+You can use `@pytest.mark.skip` to skip tests that are not needed in certain conditions and `@pytest.mark.xfail` to mark tests expected to fail.  
+
+#### ✅ **Example:**  
+```python
+import pytest
+
+@pytest.mark.skip(reason="Skipping Eve's test")
+def test_eve():
+    assert True  
+
+@pytest.mark.xfail(reason="Mallory is under 18, expected test failure")
+def test_mallory():
+    age = 16
+    assert age >= 18  
+```
+This ensures `test_eve` is skipped, and `test_mallory` is expected to fail due to the age condition. 🚀
