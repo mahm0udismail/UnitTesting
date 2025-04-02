@@ -321,3 +321,110 @@ Here’s the structured content as per your request:
 
 ---
 
+### **16. How to handle test failures**  
+#### **1. Stopping after the first (or N) failures** 
+##### **Commands:**  
+- ##### stop after first failure:  
+  ```bash
+  pytest -x
+  ```  
+- ##### stop after two failures:  
+  ```bash
+  pytest --maxfail=2  
+  ``` 
+- ##### Dropping to pdb on failures
+  ```bash
+    pytest --pdb
+  ``` 
+- ##### Dropping to pdb at the start of a test:
+  ```bash
+  pytest --trace 
+  ``` 
+   
+
+### **17.Example Explaining the Difference Between `-x` / `--maxfail` and `--pdb` / `--trace`**  
+
+#### **1. Simple Test Code with Some Failures:**  
+```python
+import pytest
+
+def test_pass():
+    assert 1 + 1 == 2  # This test will pass
+
+def test_fail_1():
+    assert 1 + 1 == 3  # This test will fail
+
+def test_fail_2():
+    assert "hello".upper() == "hello"  # This test will also fail
+
+def test_fail_3():
+    assert len([1, 2, 3]) == 5  # This test will fail too
+```
+
+---
+
+### **2. Running `pytest -x` (Stop at First Failure Only)**  
+```bash
+pytest -x test_example.py
+```
+🔹 **Result:**  
+- `test_pass` runs first (✅ Pass).  
+- `test_fail_1` runs next (❌ Fails).  
+- **Execution stops immediately after the first failure (`-x`).**  
+- `test_fail_2` and `test_fail_3` will **not** run.  
+
+---
+
+### **3. Running `pytest --maxfail=2` (Stop After Two Failures)**  
+```bash
+pytest --maxfail=2 test_example.py
+```
+🔹 **Result:**  
+- `test_pass` runs first (✅ Pass).  
+- `test_fail_1` runs next (❌ Fails).  
+- `test_fail_2` runs next (❌ Fails).  
+- **Execution stops after the second failure (`--maxfail=2`).**  
+- `test_fail_3` will **not** run.  
+
+---
+
+### **4. Running `pytest --pdb` (Drop into `pdb` on Every Failure)**  
+```bash
+pytest --pdb test_example.py
+```
+🔹 **Result:**  
+- `test_pass` runs first (✅ Pass).  
+- `test_fail_1` fails and enters `pdb`:  
+  ```python
+  > assert 1 + 1 == 3
+  (Pdb)  # You can inspect variables and debug here
+  ```
+- After exiting `pdb`, `test_fail_2` runs and enters `pdb` again.  
+- This happens for every failed test.  
+
+---
+
+### **5. Running `pytest --trace` (Drop into `pdb` at the Start of Each Test)**  
+```bash
+pytest --trace test_example.py
+```
+🔹 **Result:**  
+- Before running `test_pass`, pytest enters `pdb`.  
+- After executing `test_pass`, pytest enters `pdb` before `test_fail_1`.  
+- This happens before every test, allowing you to inspect each step before execution.  
+
+---
+
+### **📌 When to Use Each?**
+| Scenario | Use |
+|----------|-----|
+| Stop running tests after the first failure | `pytest -x` |
+| Stop running tests after a specific number of failures | `pytest --maxfail=N` |
+| Drop into `pdb` only when a test fails | `pytest --pdb` |
+| Stop at the first failure **and** enter `pdb` | `pytest -x --pdb` |
+| Debug only the first `N` failures | `pytest --pdb --maxfail=N` |
+| Enter `pdb` at the start of every test | `pytest --trace` |
+
+🚀 **Summary:**  
+- **`-x` and `--maxfail`**: Stop test execution after a certain number of failures.  
+- **`--pdb` and `--trace`**: Debug failures interactively using `pdb`.
