@@ -180,3 +180,144 @@ def test_mallory():
     assert age >= 18  
 ```
 This ensures `test_eve` is skipped, and `test_mallory` is expected to fail due to the age condition. 🚀
+
+### **12. Using `@pytest.mark.usefixtures` in Pytest**
+
+`@pytest.mark.usefixtures` is used to specify which fixtures should be executed before a test runs without passing them as arguments to the test. It allows for running setup code before tests without the need to directly reference the fixture in the test function.
+
+### Example:
+```python
+import pytest
+
+@pytest.fixture
+def setup_data():
+    print("Setup data before test")
+
+@pytest.mark.usefixtures("setup_data")
+def test_example():
+    print("Running test_example")
+```
+
+**Output:**
+```
+Setup data before test
+Running test_example
+```
+
+### **13. Using `filterwarnings` in Pytest**
+
+The `filterwarnings` marker in Pytest allows you to filter specific warnings during test execution, enabling you to ignore or customize how warnings are handled. It's useful when you want to suppress or modify warning behavior for certain tests.
+
+#### **Example:**
+```python
+import pytest
+
+@pytest.mark.filterwarnings("ignore:.*DeprecationWarning.*")
+def test_example():
+    # Ignore DeprecationWarning during this test
+    warn("This is a deprecated feature", DeprecationWarning)
+    assert True
+```
+In this example, any `DeprecationWarning` will be ignored during the execution of the test.
+
+### **14. Using `@pytest.mark.skipif` in Pytest**
+
+The `@pytest.mark.skipif` marker allows you to skip a test function based on a specific condition. It's useful for skipping tests when certain environments or conditions are not met.
+
+#### **Example:**
+```python
+import pytest
+import sys
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Test is skipped on Windows")
+def test_example():
+    assert True
+```
+In this example, the test will be skipped if the platform is Windows (`win32`).
+
+
+In **pytest**, you can re-run failed tests and maintain state between test runs using the following methods:
+
+---
+
+
+Here’s the structured content as per your request:  
+
+---
+
+### **15. How to re-run failed tests and maintain state between test runst**  
+
+#### **1. Re-running Failed Tests Automatically**  
+- **Use `pytest-rerunfailures` plugin** to automatically re-run failed tests.  
+
+##### **Installation:**  
+- Install the plugin using:  
+  ```bash
+  pip install pytest-rerunfailures
+  ```  
+
+##### **Usage:**  
+- Run tests with re-run options:  
+  ```bash
+  pytest --reruns 3 --reruns-delay 2
+  ```  
+  - **`--reruns 3`** → Re-run failed tests up to **3** times.  
+  - **`--reruns-delay 2`** → Wait **2 seconds** before re-running.  
+
+##### **Example:**  
+- Use `@pytest.mark.flaky` for specific test functions:  
+  ```python
+  import pytest
+
+  @pytest.mark.flaky(reruns=3, reruns_delay=2)
+  def test_unstable():
+      import random
+      assert random.choice([True, False])
+  ```  
+  - If the test fails, it will retry **3** times with a **2-second delay**.  
+
+---
+
+#### **2. Running Only Failed Tests**  
+- **Use `pytest --lf`** to run only tests that failed in the last session.  
+
+##### **Command:**  
+- Run the last failed tests:  
+  ```bash
+  pytest --lf
+  ```  
+
+- **Use `pytest --ff`** to run failed tests first before other tests.  
+  ```bash
+  pytest --ff
+  ```  
+
+---
+
+#### **3. Persisting Test Results Between Runs**  
+- **Pytest stores the state of test results** in a cache directory (`.pytest_cache`).  
+
+##### **Commands:**  
+- Show last failed tests:  
+  ```bash
+  pytest --cache-show
+  ```  
+- Clear cached test results:  
+  ```bash
+  pytest --cache-clear
+  ```  
+
+---
+
+#### **4. Summary**  
+
+| Method | Description | Command/Code |  
+|--------|-------------|-------------|  
+| `pytest-rerunfailures` | Auto re-run failed tests | `pytest --reruns 3 --reruns-delay 2` |  
+| `pytest --lf` | Run only last failed tests | `pytest --lf` |  
+| `pytest --ff` | Run failed tests first | `pytest --ff` |  
+| `pytest --cache-show` | Show cached failed tests | `pytest --cache-show` |  
+| `pytest --cache-clear` | Clear cache | `pytest --cache-clear` |  
+
+---
+
